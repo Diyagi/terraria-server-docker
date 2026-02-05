@@ -4,9 +4,10 @@ source "${SCRIPTSDIR}/helper-functions.sh"
 function kill_terrariaserver {
   if [[ -n "${terrariapid:-}" ]] && kill -0 "$terrariapid" 2>/dev/null; then
     LogInfo "Sending shutdown command..."
-    echo "exit" > /tmp/terraria.stdin
+    echo "exit" >&3
     wait "$terrariapid"
   fi
+  return 0
 }
 
 trap kill_terrariaserver EXIT
@@ -15,9 +16,9 @@ LogAction "Generating Config File"
 source "${SCRIPTSDIR}/create-server-config.sh"
 
 LogAction "Starting the server..."
-
 architecture=$(dpkg --print-architecture)
 
+# Handles named pipe creation and opening
 if [ -f /tmp/terraria.stdin ]; then rm /tmp/terraria.stdin; fi
 mkfifo /tmp/terraria.stdin
 exec 3<>/tmp/terraria.stdin
@@ -29,7 +30,13 @@ else
 fi
 
 terrariapid=$!
-
 LogInfo "Started Terraria server with PID ${terrariapid}"
+
+# Redirects this bash's script stdin to Named Piped
+if [[ -t 0 ]]; then
+    cat </dev/tty >&3 &
+    stdin_forwarder_pid=$!
+fi
+
 wait $terrariapid
 
