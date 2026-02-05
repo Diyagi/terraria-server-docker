@@ -1,0 +1,22 @@
+services: 
+  terraria-server:
+    image: diyagi/terraria-server-docker:latest
+    ports:
+      - 7777:7777
+    volumes:
+      - ./worlds:/home/terraria/worlds
+    environment:
+      PUID: 1001
+      PGID: 1001
+      PORT: 7777
+      VERSION: "latest"
+      AUTOCREATE: 2
+      WORLDNAME: "MyLittleTestWorld"
+      DIFFICULTY: 2
+      MAXPLAYERS: 4
+      PASSWORD: ""
+      MOTD: "BEAR!"
+      SECURE: 0
+      NPCSTREAM: 1
+
+      

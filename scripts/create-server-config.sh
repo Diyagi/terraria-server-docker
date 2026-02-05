@@ -1,51 +1,51 @@
 #!/bin/bash
 
-file=server-config.conf
+file="${TERRARIA_DIR}/server-config.conf"
 touch ${file}
 echo > ${file}
 
 # user has set the world variable and the world exists. Loads world
-if [[ ! -z "${world}" && -f "${world}" ]]; then
-    echo "${file}: Loading world: ${world}"
-    echo "world=${world}" >> ${file}
+if [[ ! -z "${WORLD}" && -f "${WORLD}" ]]; then
+    LogInfo "${file}: Loading world: ${WORLD}"
+    echo "world=${WORLD}" >> ${file}
 
 # user has set the world variable but it doesnt exists. Creates it. This will bypass the worldname variable.
-elif [[ ! -z "${world}" && ! -f "${world}" ]]; then
-    echo "${file}: World ${world} doesn't exists. Creating it using:"
+elif [[ ! -z "${WORLD}" && ! -f "${WORLD}" ]]; then
+    LogInfo "${file}: World ${WORLD} doesn't exists. Creating it using:"
 
-    echo "worldname: $(basename "${world}")"
-    echo "autocreate: ${autocreate}"
-    echo "seed: ${seed}"
-    echo "difficulty: ${difficulty}"
+    echo "worldname: $(basename "${WORLD}")"
+    echo "autocreate: ${AUTOCREATE}"
+    echo "seed: ${SEED}"
+    echo "difficulty: ${DIFFICULTY}"
 
-    echo "world=${world}" >> ${file}
-    echo "autocreate=${autocreate}" >> ${file}
-    echo "seed=${seed}" >> ${file}
-    echo "worldname=$(basename "${world}")" >> ${file}
-    echo "difficulty=${difficulty}" >> ${file}
+    echo "world=${WORLD}" >> ${file}
+    echo "autocreate=${AUTOCREATE}" >> ${file}
+    echo "seed=${SEED}" >> ${file}
+    echo "worldname=$(basename "${WORLD}")" >> ${file}
+    echo "difficulty=${DIFFICULTY}" >> ${file}
 
 # user has not set the world variable.
 else
-    echo "world=${worldpath}/${worldname}.wld" >> ${file}
-    echo "autocreate=${autocreate}" >> ${file}
-    echo "seed=${seed}" >> ${file}
-    echo "worldname=${worldname}" >> ${file}
-    echo "difficulty=${difficulty}" >> ${file}
+    echo "world=${WORLDPATH}/${WORLDNAME}.wld" >> ${file}
+    echo "autocreate=${AUTOCREATE}" >> ${file}
+    echo "seed=${SEED}" >> ${file}
+    echo "worldname=${WORLDNAME}" >> ${file}
+    echo "difficulty=${DIFFICULTY}" >> ${file}
 fi
 
-echo "maxplayers=${maxplayers}" >> ${file}
-echo "port=${port}" >> ${file}
-echo "password=${password}" >> ${file}
-echo "motd=${motd}" >> ${file}
-echo "worldpath=${worldpath}" >> ${file}
+echo "maxplayers=${MAXPLAYERS}" >> ${file}
+echo "port=${PORT}" >> ${file}
+echo "password=${PASSWORD}" >> ${file}
+echo "motd=${MOTD}" >> ${file}
+echo "worldpath=${WORLDPATH}" >> ${file}
 
-if [[ -z "${banlist}" || "${banlist}" == "banlist.txt" ]]; then
-    touch banlist.txt
-fi
-echo "banlist=${banlist}" >> ${file}
+[[ -n "${BANLIST:-}" && ! -f "${TERRARIA_DIR}/$BANLIST" ]] && touch "${TERRARIA_DIR}/$BANLIST"
 
-echo "secure=${secure}" >> ${file}
-echo "language=${language}" >> ${file}
-echo "upnp=${upnp}" >> ${file}
-echo "npcstream=${npcstream}" >> ${file}
-echo "priority=${priority}" >> ${file};
+echo "banlist=${BANLIST}" >> ${file}
+
+echo "secure=${SECURE}" >> ${file}
+echo "language=${LANGUAGE}" >> ${file}
+echo "upnp=${UPNP}" >> ${file}
+echo "npcstream=${NPCSTREAM}" >> ${file}
+echo "priority=${PRIORITY}" >> ${file}
+
