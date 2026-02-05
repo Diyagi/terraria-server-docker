@@ -1,98 +1,70 @@
-FROM debian:12-slim AS base
+FROM debian:trixie-slim AS base-amd64
+FROM --platform=arm64 diyagi/mono-framework-docker:latest AS base-arm64
 
-ARG VERSION=latest
+ARG TARGETARCH
+FROM base-${TARGETARCH}
 
+ENV USER=terraria
+ENV HOMEDIR="/home/${USER}/"
 ENV TERRARIA_VERSION=$VERSION
-ENV TERRARIA_DIR=/root/.local/share/Terraria
-ENV PATH="${TERRARIA_DIR}:${PATH}"
+ENV TERRARIA_DIR="${HOMEDIR}/terraria"
+ENV WORLDS_DIR="${HOMEDIR}/worlds"
+ENV SCRIPTSDIR="${HOMEDIR}/scripts"
 
-RUN mkdir -p ${TERRARIA_DIR}
+RUN apt-get update && apt-get install -y --no-install-recommends \ 
+	ca-certificates \
+	locales \
+	python3 \
+	unzip \
+	curl \
+	tini \
+	gosu \
+    && sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+    && dpkg-reconfigure --frontend=noninteractive locales \
+    && useradd -u 1000 -m "${USER}" \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR ${TERRARIA_DIR}
+COPY ./scripts/* ${SCRIPTSDIR}
+RUN set -x \
+    && chmod +x -R ${SCRIPTSDIR} \
+    && mkdir -p ${TERRARIA_DIR} \
+    && mkdir -p ${WORLDS_DIR} \
+    && chown -R "${USER}:${USER}" "${SCRIPTSDIR}" "${TERRARIA_DIR}" "${WORLDS_DIR}"
 
-COPY ./scripts/* .
+ENV PUID=1000 \
+    PGID=1000 \
+    VERSION="latest" \
+    AUTOCREATE=1 \
+    SEED="" \
+    WORLDNAME="TerrariaWorld" \
+    DIFFICULTY=1 \
+    MAXPLAYERS=16 \
+    PORT=7777 \
+    PASSWORD="" \
+    MOTD="Welcome!" \
+    WORLDPATH="${WORLDS_DIR}" \
+    BANLIST="banlist.txt" \
+    SECURE=1 \
+    LANGUAGE="en/US" \
+    UPNP=1 \
+    NPCSTREAM=1 \
+    PRIORITY=1
 
-RUN chmod +x \
-    create-server-config.sh \
-    get_latest_version.py \
-    init-TerrariaServer-amd64.sh \
-    init-TerrariaServer-arm64.sh
+WORKDIR ${HOMEDIR}
 
-RUN apt-get update -qq && apt-get -qq install python3 unzip wget
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
-RUN if [ "${TERRARIA_VERSION:-latest}" = "latest" ]; then \
-    echo "using latest version." \
-    &&  export TERRARIA_VERSION=$(python3 get_latest_version.py 2>/dev/null | tail -n 1); fi \
-    && echo "TERRARIA_VERSION=${TERRARIA_VERSION}" \
-    && echo "${TERRARIA_VERSION}" > ${TERRARIA_DIR}/terraria-version.txt \
-    && wget -q https://terraria.org/api/download/pc-dedicated-server/terraria-server-${TERRARIA_VERSION}.zip -O terraria-server.zip \
-    && unzip -qq terraria-server.zip -d ${TERRARIA_DIR} && mv ${TERRARIA_DIR}/*/* ${TERRARIA_DIR} \
-    && rm -rf terraria-server.zip ${TERRARIA_DIR}/Mac ${TERRARIA_DIR}/Windows ${TERRARIA_DIR}/${TERRARIA_VERSION} \
-    && mv ${TERRARIA_DIR}/Linux/* ${TERRARIA_DIR}/ \
-    && rm -rf ${TERRARIA_DIR}/Linux \
-    && cd ${TERRARIA_DIR}
-
-ENV autocreate=1 \
-    seed='' \
-    worldname=TerrariaWorld \
-    difficulty=1 \
-    maxplayers=16 \
-    port=7777 \
-    password='' \
-    motd="Welcome!" \
-    worldpath=${TERRARIA_DIR}/Worlds \
-    banlist=banlist.txt \
-    secure=1 \
-    language=en/US \
-    upnp=1 \
-    npcstream=1 \
-    priority=1
-
-RUN mkdir -p ${TERRARIA_DIR}
-
-WORKDIR ${TERRARIA_DIR}
-
-RUN mkdir -p ${TERRARIA_DIR}/Worlds
-
-### amd-64 ###
-
-FROM base AS build-amd64
-
-RUN chmod +x TerrariaServer.bin.x86_64
-
-ENTRYPOINT [ "./init-TerrariaServer-amd64.sh" ]
+CMD [ "bash", "init.sh" ]
 
 ### arm-64 ###
 
-FROM mono:latest AS build-arm64
+#FROM diyagi/mono-framework-docker:latest AS build-arm64
 
-ENV TERRARIA_DIR=/root/.local/share/Terraria
+#RUN chmod +x TerrariaServer.exe
 
-ENV PATH="${TERRARIA_DIR}:${PATH}" \
-    autocreate=1 \
-    seed='' \
-    worldname=TerrariaWorld \
-    difficulty=1 \
-    maxplayers=16 \
-    port=7777 \
-    password='' \
-    motd="Welcome!" \
-    worldpath=${TERRARIA_DIR}/Worlds \
-    banlist=banlist.txt \
-    secure=1 \
-    language=en/US \
-    upnp=1 \
-    npcstream=1 \
-    priority=1
+#RUN rm System* Mono* monoconfig mscorlib.dll
 
-RUN mkdir -p ${TERRARIA_DIR}
+# Use tini as the entrypoint for signal handling
+#ENTRYPOINT ["/usr/bin/tini", "--"]
 
-WORKDIR ${TERRARIA_DIR}
-
-COPY --from=base ${TERRARIA_DIR}/* ./
-
-RUN chmod +x TerrariaServer.exe
-
-RUN rm System* Mono* monoconfig mscorlib.dll
-
-ENTRYPOINT [ "./init-TerrariaServer-arm64.sh" ]
+#cmd [ "bash", "init-TerrariaServer-arm64.sh" ]
