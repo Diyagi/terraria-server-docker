@@ -19,7 +19,7 @@ LogAction "Starting the server..."
 architecture=$(dpkg --print-architecture)
 
 # Handles named pipe creation and opening
-if [ -f /tmp/terraria.stdin ]; then rm /tmp/terraria.stdin; fi
+if [ -e "/tmp/terraria.stdin" ]; then rm /tmp/terraria.stdin; fi
 mkfifo /tmp/terraria.stdin
 exec 3<>/tmp/terraria.stdin
 

@@ -38,9 +38,8 @@ download_terraria_server() {
 
   tmpdir="$(mktemp -d)"
   unzip -qq terraria-server.zip "*/Linux/*" -d "$tmpdir"
-  mv "$tmpdir"/*/Linux/* "$TERRARIA_DIR/"
+  rsync -a "$tmpdir"/*/Linux/ "$TERRARIA_DIR/"
   rm -rf "$tmpdir"
-
 
   if [[ "$(dpkg --print-architecture)" == "arm64" ]]; then
     rm -f \

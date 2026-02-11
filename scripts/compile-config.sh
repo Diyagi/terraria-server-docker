@@ -8,21 +8,19 @@ update_config() {
   local value="$2"
   local found=0
 
-  if [ -z "$value" ]; then
-    return 0
-  fi
-
-  if [ -f "$CONFIG_FILE" ]; then
+  if [[ -f "$CONFIG_FILE" ]]; then
     while IFS='=' read -r existing_key existing_value; do
-      if [ "$existing_key" = "$key" ]; then
-        echo "${key}=${value}" >> "${TEMP_FILE}_${key}"
+      if [[ "$existing_key" = "$key" ]]; then
+        if [[ -n "$value" ]]; then
+          echo "${key}=${value}" >> "${TEMP_FILE}_${key}"
+        fi
         found=1
       else
         echo "${existing_key}=${existing_value}" >> "${TEMP_FILE}_${key}"
       fi
     done < "$CONFIG_FILE"
 
-    if [ $found -eq 0 ]; then
+    if [[ $found -eq 0 ]] && [[ -n "$value" ]]; then
       echo "${key}=${value}" >> "${TEMP_FILE}_${key}"
     fi
 
