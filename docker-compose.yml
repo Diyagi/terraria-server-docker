@@ -10,17 +10,15 @@ services:
     volumes:
       - ./worlds:/home/terraria/worlds
     environment:
-      PUID: 1001
-      PGID: 1001
+      PUID: 1000
+      PGID: 1000
       PORT: 7777
       VERSION: "latest"
+      WORLD: "My Little Test World"
       AUTOCREATE: 2
-      WORLDNAME: "MyLittleTestWorld"
       DIFFICULTY: 2
       MAXPLAYERS: 4
       PASSWORD: ""
       MOTD: "BEAR!"
       SECURE: 0
-      NPCSTREAM: 1
-
-      
+      NPCSTREAM: 0      

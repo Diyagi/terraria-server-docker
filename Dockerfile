@@ -33,21 +33,21 @@ RUN set -x \
 ENV PUID=1000 \
     PGID=1000 \
     VERSION="latest" \
-    AUTOCREATE=1 \
-    SEED="" \
-    WORLDNAME="TerrariaWorld" \
-    DIFFICULTY=1 \
-    MAXPLAYERS=16 \
-    PORT=7777 \
-    PASSWORD="" \
-    MOTD="Welcome!" \
     WORLDPATH="${WORLDS_DIR}" \
+    PORT=7777 \
+    MAXPLAYERS=16 \
+    MOTD="Welcome!" \
+    PASSWORD="" \
+    WORLD="" \
+    AUTOCREATE=1 \
     BANLIST="banlist.txt" \
     SECURE=1 \
+    UPNP=0 \
+    DIFFICULTY=1 \
+    NPCSTREAM=0 \
     LANGUAGE="en-US" \
-    UPNP=1 \
-    NPCSTREAM=1 \
-    PRIORITY=1
+    PRIORITY=1 \
+    SEED="" 
 
 WORKDIR ${HOMEDIR}
 

@@ -41,11 +41,14 @@ download_terraria_server() {
   mv "$tmpdir"/*/Linux/* "$TERRARIA_DIR/"
   rm -rf "$tmpdir"
 
-  rm -f \
-    "${TERRARIA_DIR}"/System* \
-    "${TERRARIA_DIR}"/Mono* \
-    "${TERRARIA_DIR}/monoconfig" \
-    "${TERRARIA_DIR}/mscorlib.dll"
+
+  if [[ "$(dpkg --print-architecture)" == "arm64" ]]; then
+    rm -f \
+      "${TERRARIA_DIR}"/System* \
+      "${TERRARIA_DIR}"/Mono* \
+      "${TERRARIA_DIR}/monoconfig" \
+      "${TERRARIA_DIR}/mscorlib.dll"
+  fi
 
   chmod +x "$TERRARIA_DIR/TerrariaServer.bin.x86_64"
 

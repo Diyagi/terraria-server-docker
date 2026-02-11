@@ -13,7 +13,7 @@ function kill_terrariaserver {
 trap kill_terrariaserver EXIT
 
 LogAction "Generating Config File"
-source "${SCRIPTSDIR}/create-server-config.sh"
+source "${SCRIPTSDIR}/compile-config.sh"
 
 LogAction "Starting the server..."
 architecture=$(dpkg --print-architecture)
@@ -24,9 +24,9 @@ mkfifo /tmp/terraria.stdin
 exec 3<>/tmp/terraria.stdin
 
 if [ "$architecture" == "arm64" ]; then
-  mono --server --gc=sgen -O=all ${TERRARIA_DIR}/TerrariaServer.exe -config server-config.conf < /tmp/terraria.stdin &
+  mono --server --gc=sgen -O=all ${TERRARIA_DIR}/TerrariaServer.exe -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin &
 else
-  ${TERRARIA_DIR}/TerrariaServer.bin.x86_64 -config server-config.conf < /tmp/terraria.stdin &
+  ${TERRARIA_DIR}/TerrariaServer.bin.x86_64 -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin &
 fi
 
 terrariapid=$!
