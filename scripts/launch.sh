@@ -23,15 +23,11 @@ if [ -e "/tmp/terraria.stdin" ]; then rm /tmp/terraria.stdin; fi
 mkfifo /tmp/terraria.stdin
 exec 3<>/tmp/terraria.stdin
 
-touch ${HOMEDIR}/test.log
+[ "$architecture" == "arm64" ] && SERVER_CMD="mono --server --gc=sgen -O=all"
 
-if [ "$architecture" == "arm64" ]; then
-  mono --server --gc=sgen -O=all ${TERRARIA_DIR}/TerrariaServer.bin.x86_64 -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin > >(tee ${HOMEDIR}/log/terraria.log) &
-else
-  ${TERRARIA_DIR}/TerrariaServer.bin.x86_64 -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin > >(tee ${HOMEDIR}/log/terraria.log) &  
-fi
-
+$SERVER_CMD ${TERRARIA_DIR}/TerrariaServer.bin.x86_64 -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin > >(tee ${HOMEDIR}/log/terraria.log) &
 terrariapid=$!
+
 LogInfo "Started Terraria server with PID ${terrariapid}"
 
 # Redirects this bash's script stdin to Named Piped
