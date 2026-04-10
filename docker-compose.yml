@@ -9,6 +9,7 @@ services:
       - 7777:7777
     volumes:
       - ./worlds:/home/terraria/worlds
+      # - ./log:/home/terraria/log
     environment:
       PUID: 1000
       PGID: 1000

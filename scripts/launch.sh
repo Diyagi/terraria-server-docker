@@ -23,10 +23,12 @@ if [ -e "/tmp/terraria.stdin" ]; then rm /tmp/terraria.stdin; fi
 mkfifo /tmp/terraria.stdin
 exec 3<>/tmp/terraria.stdin
 
+touch ${HOMEDIR}/test.log
+
 if [ "$architecture" == "arm64" ]; then
-  mono --server --gc=sgen -O=all ${TERRARIA_DIR}/TerrariaServer.exe -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin &
+  mono --server --gc=sgen -O=all ${TERRARIA_DIR}/TerrariaServer.bin.x86_64 -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin > >(tee ${HOMEDIR}/log/terraria.log) &
 else
-  ${TERRARIA_DIR}/TerrariaServer.bin.x86_64 -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin &
+  ${TERRARIA_DIR}/TerrariaServer.bin.x86_64 -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin > >(tee ${HOMEDIR}/log/terraria.log) &  
 fi
 
 terrariapid=$!
@@ -39,4 +41,3 @@ if [[ -t 0 ]]; then
 fi
 
 wait $terrariapid
-
