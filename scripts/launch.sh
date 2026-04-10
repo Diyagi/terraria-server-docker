@@ -7,6 +7,10 @@ function kill_terrariaserver {
     echo "exit" >&3
     wait "$terrariapid"
   fi
+
+  if [[ -n "${stdin_forwarder_pid:-}" ]]; then
+    kill "$stdin_forwarder_pid" 2>/dev/null
+  fi
   return 0
 }
 
@@ -19,13 +23,13 @@ LogAction "Starting the server..."
 architecture=$(dpkg --print-architecture)
 
 # Handles named pipe creation and opening
-if [ -e "/tmp/terraria.stdin" ]; then rm /tmp/terraria.stdin; fi
+[ -e /tmp/terraria.stdin ] && rm /tmp/terraria.stdin
 mkfifo /tmp/terraria.stdin
 exec 3<>/tmp/terraria.stdin
 
-[ "$architecture" == "arm64" ] && SERVER_CMD="mono --server --gc=sgen -O=all"
+[ "$architecture" == "arm64" ] && SERVER_CMD=(mono --server --gc=sgen -O=all)
 
-$SERVER_CMD ${TERRARIA_DIR}/TerrariaServer.bin.x86_64 -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin > >(tee ${LOGDIR}/terraria.log) &
+$SERVER_CMD "${TERRARIA_DIR}/TerrariaServer.bin.x86_64" -config "${TERRARIA_DIR}/server-config.conf" < /tmp/terraria.stdin > >(tee "${LOGDIR}/terraria.log") &
 terrariapid=$!
 
 LogInfo "Started Terraria server with PID ${terrariapid}"
