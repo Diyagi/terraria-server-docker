@@ -9,6 +9,7 @@ ENV HOMEDIR="/home/${USER}"
 ENV TERRARIA_DIR="${HOMEDIR}/server-files"
 ENV WORLDS_DIR="${HOMEDIR}/worlds"
 ENV SCRIPTSDIR="${HOMEDIR}/scripts"
+ENV LOGDIR="${HOMEDIR}/log"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \ 
 	ca-certificates \
@@ -29,6 +30,7 @@ RUN set -x \
     && chmod +x -R ${SCRIPTSDIR} \
     && mkdir -p ${TERRARIA_DIR} \
     && mkdir -p ${WORLDS_DIR} \
+    && mkdir -p ${LOGDIR} \
     && chown -R "${USER}:${USER}" "${SCRIPTSDIR}" "${TERRARIA_DIR}" "${WORLDS_DIR}"
 
 ENV PUID=1000 \

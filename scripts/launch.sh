@@ -25,7 +25,7 @@ exec 3<>/tmp/terraria.stdin
 
 [ "$architecture" == "arm64" ] && SERVER_CMD="mono --server --gc=sgen -O=all"
 
-$SERVER_CMD ${TERRARIA_DIR}/TerrariaServer.bin.x86_64 -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin > >(tee ${HOMEDIR}/log/terraria.log) &
+$SERVER_CMD ${TERRARIA_DIR}/TerrariaServer.bin.x86_64 -config ${TERRARIA_DIR}/server-config.conf < /tmp/terraria.stdin > >(tee ${LOGDIR}/terraria.log) &
 terrariapid=$!
 
 LogInfo "Started Terraria server with PID ${terrariapid}"
